@@ -1,9 +1,66 @@
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import Layout from '../components/Layout';
 import Header from '../components/Header';
 
 const Dashboard = () => {
     const navigate = useNavigate();
+    const [stats, setStats] = useState({
+        projects: { total: 0, byStatus: {} },
+        freelance: { total: 0, byStatus: {} },
+        jobs: { total: 0, byStatus: {} }
+    });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [projectsRes, freelanceRes, jobsRes] = await Promise.all([
+                    axios.get('/api/projects'),
+                    axios.get('/api/freelance'),
+                    axios.get('/api/jobs')
+                ]);
+
+                // Helper to count by status
+                const countByStatus = (items, statusKey = 'status') => {
+                    return items.reduce((acc, item) => {
+                        const status = item[statusKey];
+                        acc[status] = (acc[status] || 0) + 1;
+                        return acc;
+                    }, {});
+                };
+
+                setStats({
+                    projects: {
+                        total: projectsRes.data.length,
+                        byStatus: countByStatus(projectsRes.data)
+                    },
+                    freelance: {
+                        total: freelanceRes.data.length,
+                        byStatus: countByStatus(freelanceRes.data)
+                    },
+                    jobs: {
+                        total: jobsRes.data.length,
+                        byStatus: countByStatus(jobsRes.data)
+                    }
+                });
+            } catch (err) {
+                console.error("Error fetching dashboard data", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    // Helper to verify status count safely
+    const getCount = (category, status) => {
+        return stats[category].byStatus[status] || 0;
+    };
+
+    if (loading) return <div className="h-screen w-full flex items-center justify-center bg-[#0f172a] text-white">Loading Dashboard...</div>;
 
     return (
         <Layout>
@@ -22,13 +79,13 @@ const Dashboard = () => {
                     >
                         <div className="flex items-center justify-between mb-6">
                             <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 group-hover:text-primary transition-colors">Projects</h3>
-                            <div className="text-4xl font-light text-slate-300 dark:text-slate-700 tracking-tighter">06</div>
+                            <div className="text-4xl font-light text-slate-300 dark:text-slate-700 tracking-tighter">{stats.projects.total.toString().padStart(2, '0')}</div>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                            <span className="px-2 py-1 text-[10px] font-bold border border-primary/20 bg-primary/5 text-primary rounded uppercase">Active: 3</span>
-                            <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">In Progress: 1</span>
-                            <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Backlog: 1</span>
-                            <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Completed: 1</span>
+                            <span className="px-2 py-1 text-[10px] font-bold border border-primary/20 bg-primary/5 text-primary rounded uppercase">Active: {getCount('projects', 'ACTIVE')}</span>
+                            <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">In Progress: {getCount('projects', 'IN PROGRESS')}</span>
+                            <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Backlog: {getCount('projects', 'BACKLOG')}</span>
+                            <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Completed: {getCount('projects', 'COMPLETED')}</span>
                         </div>
                     </div>
 
@@ -39,13 +96,13 @@ const Dashboard = () => {
                     >
                         <div className="flex items-center justify-between mb-6">
                             <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 group-hover:text-primary transition-colors">Freelance</h3>
-                            <div className="text-4xl font-light text-slate-300 dark:text-slate-700 tracking-tighter">04</div>
+                            <div className="text-4xl font-light text-slate-300 dark:text-slate-700 tracking-tighter">{stats.freelance.total.toString().padStart(2, '0')}</div>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                            <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Applied: 1</span>
-                            <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Pending: 1</span>
-                            <span className="px-2 py-1 text-[10px] font-bold border border-primary/20 bg-primary/5 text-primary rounded uppercase">Active: 2</span>
-                            <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Completed: 0</span>
+                            <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Applied: {getCount('freelance', 'APPLIED')}</span>
+                            <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Pending: {getCount('freelance', 'PENDING')}</span>
+                            <span className="px-2 py-1 text-[10px] font-bold border border-primary/20 bg-primary/5 text-primary rounded uppercase">Active: {getCount('freelance', 'ACTIVE')}</span>
+                            <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Completed: {getCount('freelance', 'COMPLETED')}</span>
                         </div>
                     </div>
 
@@ -56,13 +113,13 @@ const Dashboard = () => {
                     >
                         <div className="flex items-center justify-between mb-6">
                             <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 group-hover:text-primary transition-colors">Jobs</h3>
-                            <div className="text-4xl font-light text-slate-300 dark:text-slate-700 tracking-tighter">15</div>
+                            <div className="text-4xl font-light text-slate-300 dark:text-slate-700 tracking-tighter">{stats.jobs.total.toString().padStart(2, '0')}</div>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                            <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Applied: 8</span>
-                            <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Interview: 4</span>
-                            <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Offer: 3</span>
-                            <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Rejected: 0</span>
+                            <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Applied: {getCount('jobs', 'Applied')}</span>
+                            <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Interview: {getCount('jobs', 'Interview')}</span>
+                            <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Offer: {getCount('jobs', 'Offer')}</span>
+                            <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Rejected: {getCount('jobs', 'Rejected')}</span>
                         </div>
                     </div>
                 </div>

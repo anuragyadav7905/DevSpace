@@ -10,6 +10,14 @@ const ProjectSchema = new mongoose.Schema({
         enum: ['ACTIVE', 'COMPLETED', 'BACKLOG', 'IN PROGRESS'],
         default: 'BACKLOG'
     },
+    link: {
+        type: String
+    },
+    _user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
     updatedAt: {
         type: Date,
         default: Date.now

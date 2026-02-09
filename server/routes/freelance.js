@@ -2,10 +2,12 @@ const express = require('express');
 const router = express.Router();
 const Freelance = require('../models/Freelance');
 
+const requireLogin = require('../middlewares/requireLogin');
+
 // Get all freelance projects
-router.get('/', async (req, res) => {
+router.get('/', requireLogin, async (req, res) => {
     try {
-        const items = await Freelance.find().sort({ createdAt: -1 });
+        const items = await Freelance.find({ _user: req.user.id }).sort({ createdAt: -1 });
         res.json(items);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -13,12 +15,14 @@ router.get('/', async (req, res) => {
 });
 
 // Create freelance project
-router.post('/', async (req, res) => {
+router.post('/', requireLogin, async (req, res) => {
     const item = new Freelance({
         title: req.body.title,
         status: req.body.status || 'PENDING',
         description: req.body.description,
-        deadline: req.body.deadline
+        deadline: req.body.deadline,
+        link: req.body.link,
+        _user: req.user.id
     });
     try {
         const newItem = await item.save();
@@ -38,6 +42,7 @@ router.patch('/:id', async (req, res) => {
         if (req.body.status) item.status = req.body.status;
         if (req.body.description) item.description = req.body.description;
         if (req.body.deadline) item.deadline = req.body.deadline;
+        if (req.body.link !== undefined) item.link = req.body.link;
 
         const updatedItem = await item.save();
         res.json(updatedItem);

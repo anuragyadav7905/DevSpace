@@ -2,10 +2,12 @@ const express = require('express');
 const router = express.Router();
 const Job = require('../models/Job');
 
+const requireLogin = require('../middlewares/requireLogin');
+
 // Get all jobs
-router.get('/', async (req, res) => {
+router.get('/', requireLogin, async (req, res) => {
     try {
-        const jobs = await Job.find().sort({ appliedAt: -1 });
+        const jobs = await Job.find({ _user: req.user.id }).sort({ appliedAt: -1 });
         res.json(jobs);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -13,12 +15,14 @@ router.get('/', async (req, res) => {
 });
 
 // Create job application
-router.post('/', async (req, res) => {
+router.post('/', requireLogin, async (req, res) => {
     const job = new Job({
         company: req.body.company,
         role: req.body.role,
         status: req.body.status || 'Applied',
-        lastFollowUp: req.body.lastFollowUp
+        lastFollowUp: req.body.lastFollowUp,
+        link: req.body.link,
+        _user: req.user.id
     });
     try {
         const newJob = await job.save();
@@ -38,6 +42,7 @@ router.patch('/:id', async (req, res) => {
         if (req.body.role) job.role = req.body.role;
         if (req.body.status) job.status = req.body.status;
         if (req.body.lastFollowUp) job.lastFollowUp = req.body.lastFollowUp;
+        if (req.body.link !== undefined) job.link = req.body.link;
 
         const updatedJob = await job.save();
         res.json(updatedJob);

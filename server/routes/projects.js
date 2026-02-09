@@ -2,13 +2,15 @@ const express = require('express');
 const router = express.Router();
 const Project = require('../models/Project');
 
+const requireLogin = require('../middlewares/requireLogin');
+
 /* 
  * GET /api/projects
  * Fetch all projects
  */
-router.get('/', async (req, res) => {
+router.get('/', requireLogin, async (req, res) => {
     try {
-        const projects = await Project.find().sort({ updatedAt: -1 });
+        const projects = await Project.find({ _user: req.user.id }).sort({ updatedAt: -1 });
         res.json(projects);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -19,10 +21,12 @@ router.get('/', async (req, res) => {
  * POST /api/projects
  * Create a new project
  */
-router.post('/', async (req, res) => {
+router.post('/', requireLogin, async (req, res) => {
     const project = new Project({
         title: req.body.title,
-        status: req.body.status || 'BACKLOG'
+        status: req.body.status || 'BACKLOG',
+        link: req.body.link,
+        _user: req.user.id
     });
     try {
         const newProject = await project.save();
@@ -43,6 +47,7 @@ router.patch('/:id', async (req, res) => {
 
         if (req.body.title) project.title = req.body.title;
         if (req.body.status) project.status = req.body.status;
+        if (req.body.link !== undefined) project.link = req.body.link;
         project.updatedAt = Date.now();
 
         const updatedProject = await project.save();

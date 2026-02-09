@@ -14,8 +14,16 @@ const JobSchema = new mongoose.Schema({
         enum: ['Applied', 'Interview', 'Offer', 'Rejected'],
         default: 'Applied'
     },
+    link: {
+        type: String
+    },
     lastFollowUp: {
         type: String
+    },
+    _user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     },
     appliedAt: {
         type: Date,
