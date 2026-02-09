@@ -26,8 +26,8 @@ const Sidebar = () => {
                         key={item.path}
                         to={item.path}
                         className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer text-sm font-medium ${isActive(item.path)
-                                ? 'bg-primary/10 text-primary'
-                                : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+                            ? 'bg-primary/10 text-primary'
+                            : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
                             }`}
                     >
                         <span className="material-symbols-outlined">{item.icon}</span>
@@ -41,8 +41,8 @@ const Sidebar = () => {
                         <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNsSkeTCloijvUr0ZAV8S1SdaR6uKazTpwSOoWJ0D25C4o28YlbWXtGhsh8xtiS7CUPXC7XK8pf9HIrwNYEt-0mJ-SgebQoQsSkqOi3tGX1Vd3u9k9S4GDW8-rChgDTIDmko1D3ggb-c_u-uY7bPiOOe9UEBA1-ZPP7SSaclb0vvJs4BOcpSkBSs_pcMsdyK0at2oRIb07Xv9NwDczGldZcXcQetQtvwdpvEN88rn0LN6IHfSjXKtLT7YUi733eWXy9ymm3TnZDSI" alt="User profile" />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-sm font-semibold">Alex Rivera</span>
-                        <span className="text-xs text-slate-500">Solo Developer</span>
+                        <span className="text-sm font-semibold">Workspace</span>
+                        <span className="text-xs text-slate-500">Solopreneur</span>
                     </div>
                 </div>
             </div>

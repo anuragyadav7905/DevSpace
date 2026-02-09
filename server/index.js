@@ -37,6 +37,7 @@ require('./routes/authRoutes')(app);
 app.use('/api/projects', require('./routes/projects'));
 app.use('/api/freelance', require('./routes/freelance'));
 app.use('/api/jobs', require('./routes/jobs'));
+app.use('/api/export', require('./routes/export'));
 
 app.get('/', (req, res) => {
   res.send('DevSpace API Running');
