@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>DevSpace - Solo Developer OS</title>
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#1a202c",
+                        "border-dark": "#2d3446",
+                        "card-dark": "#16161a",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #282e39;
+            border-radius: 10px;
+        }
+        .kanban-column { min-width: 320px; width: 320px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .status-applied { background-color: rgba(19, 91, 236, 0.15); color: #60a5fa; border: 1px solid rgba(19, 91, 236, 0.3); }
+        .status-interview { background-color: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3); }
+        .status-offer { background-color: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .status-rejected { background-color: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased h-screen overflow-hidden">
+    <div id="root"></div>
+
+    <!-- React and Dependencies -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/history@5/umd/history.development.js"></script>
+    <script src="https://unpkg.com/react-router@6.3.0/umd/react-router.development.js"></script>
+    <script src="https://unpkg.com/react-router-dom@6.3.0/umd/react-router-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { createRoot } = ReactDOM;
+        const { MemoryRouter, Routes, Route, Link, useNavigate, useLocation } = ReactRouterDOM;
+
+        // --- Shared Components ---
+
+        const Sidebar = () => {
+            const location = useLocation();
+            const isActive = (path) => location.pathname === path;
+
+            const navItems = [
+                { path: '/', label: 'Dashboard', icon: 'dashboard' },
+                { path: '/projects', label: 'Projects', icon: 'grid_view' },
+                { path: '/freelance', label: 'Freelance', icon: 'view_kanban' },
+                { path: '/jobs', label: 'Jobs', icon: 'work_history' },
+                { path: '/settings', label: 'Settings', icon: 'settings' }
+            ];
+
+            return (
+                <aside class="w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark flex flex-col shrink-0 h-full">
+                    <div class="p-6 flex items-center gap-3">
+                        <div class="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+                            <span class="material-symbols-outlined">terminal</span>
+                        </div>
+                        <h1 class="font-bold text-lg tracking-tight">DevSpace</h1>
+                    </div>
+                    <nav class="flex-1 px-4 space-y-1">
+                        {navItems.map(item => (
+                            <Link 
+                                key={item.path}
+                                to={item.path} 
+                                class={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer text-sm font-medium ${
+                                    isActive(item.path) 
+                                    ? 'bg-primary/10 text-primary' 
+                                    : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                }`}
+                            >
+                                <span class="material-symbols-outlined">{item.icon}</span>
+                                <span>{item.label}</span>
+                            </Link>
+                        ))}
+                    </nav>
+                    <div class="p-4 border-t border-slate-200 dark:border-slate-800 space-y-4">
+                        <div class="flex items-center gap-3 px-3 py-4">
+                            <div class="size-10 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+                                <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNsSkeTCloijvUr0ZAV8S1SdaR6uKazTpwSOoWJ0D25C4o28YlbWXtGhsh8xtiS7CUPXC7XK8pf9HIrwNYEt-0mJ-SgebQoQsSkqOi3tGX1Vd3u9k9S4GDW8-rChgDTIDmko1D3ggb-c_u-uY7bPiOOe9UEBA1-ZPP7SSaclb0vvJs4BOcpSkBSs_pcMsdyK0at2oRIb07Xv9NwDczGldZcXcQetQtvwdpvEN88rn0LN6IHfSjXKtLT7YUi733eWXy9ymm3TnZDSI" alt="User profile" />
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-sm font-semibold">Alex Rivera</span>
+                                <span class="text-xs text-slate-500">Solo Developer</span>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            );
+        };
+
+        const Layout = ({ children, noSidebar = false }) => {
+            return (
+                <div class="flex h-screen overflow-hidden bg-background-light dark:bg-background-dark">
+                    {!noSidebar && <Sidebar />}
+                    <main class="flex-1 flex flex-col h-full overflow-hidden">
+                        {children}
+                    </main>
+                </div>
+            );
+        };
+
+        const Header = ({ title, rightElement }) => (
+            <header class="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark flex items-center justify-between px-8 shrink-0">
+                <div class="flex items-center gap-4 flex-1">
+                    <h2 class="text-lg font-bold">{title || 'Workspace'}</h2>
+                </div>
+                <div class="flex items-center gap-4">
+                    {rightElement || (
+                        <button class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-opacity">
+                            <span class="material-symbols-outlined text-lg">add</span>
+                            Add Entry
+                        </button>
+                    )}
+                </div>
+            </header>
+        );
+
+        // --- Screen Components ---
+
+        const DashboardPage = () => {
+            const navigate = useNavigate();
+            
+            return (
+                <Layout>
+                    <Header title="Dashboard" rightElement={<div />} />
+                    <div className="flex-1 overflow-y-auto p-8 max-w-5xl mx-auto w-full">
+                        <header className="mb-12">
+                            <h2 className="text-2xl font-bold tracking-tight">Personal Workspace Overview</h2>
+                            <p className="text-slate-400 dark:text-slate-600 text-sm mt-1 uppercase tracking-widest text-[10px]">Status Console • Read-only</p>
+                        </header>
+
+                        <div className="space-y-12">
+                            {/* PROJECTS SECTION */}
+                            <div 
+                                onClick={() => navigate('/projects')}
+                                className="group cursor-pointer bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark p-8 rounded-xl hover:border-primary/40 transition-all"
+                            >
+                                <div className="flex items-center justify-between mb-6">
+                                    <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 group-hover:text-primary transition-colors">Projects</h3>
+                                    <div className="text-4xl font-light text-slate-300 dark:text-slate-700 tracking-tighter">06</div>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    <span className="px-2 py-1 text-[10px] font-bold border border-primary/20 bg-primary/5 text-primary rounded uppercase">Active: 3</span>
+                                    <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">In Progress: 1</span>
+                                    <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Backlog: 1</span>
+                                    <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Completed: 1</span>
+                                </div>
+                            </div>
+
+                            {/* FREELANCE SECTION */}
+                            <div 
+                                onClick={() => navigate('/freelance')}
+                                className="group cursor-pointer bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark p-8 rounded-xl hover:border-primary/40 transition-all"
+                            >
+                                <div className="flex items-center justify-between mb-6">
+                                    <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 group-hover:text-primary transition-colors">Freelance</h3>
+                                    <div className="text-4xl font-light text-slate-300 dark:text-slate-700 tracking-tighter">04</div>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Applied: 1</span>
+                                    <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Pending: 1</span>
+                                    <span className="px-2 py-1 text-[10px] font-bold border border-primary/20 bg-primary/5 text-primary rounded uppercase">Active: 2</span>
+                                    <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Completed: 0</span>
+                                </div>
+                            </div>
+
+                            {/* JOBS SECTION */}
+                            <div 
+                                onClick={() => navigate('/jobs')}
+                                className="group cursor-pointer bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark p-8 rounded-xl hover:border-primary/40 transition-all"
+                            >
+                                <div className="flex items-center justify-between mb-6">
+                                    <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 group-hover:text-primary transition-colors">Jobs</h3>
+                                    <div className="text-4xl font-light text-slate-300 dark:text-slate-700 tracking-tighter">15</div>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Applied: 8</span>
+                                    <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Interview: 4</span>
+                                    <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Offer: 3</span>
+                                    <span className="px-2 py-1 text-[10px] font-medium border border-slate-200 dark:border-slate-800 text-slate-500 rounded uppercase">Rejected: 0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Layout>
+            );
+        };
+
+        const ProjectsPage = () => {
+            const [filter, setFilter] = useState('All');
+            const projects = [
+                { title: 'Portfolio Redesign', status: 'ACTIVE', updated: '2h ago' },
+                { title: 'E-commerce Backend', status: 'COMPLETED', updated: 'Oct 24' },
+                { title: 'Fitness Tracker App', status: 'BACKLOG', updated: '2 days ago' },
+                { title: 'AI Content Generator', status: 'IN PROGRESS', updated: '5h ago' },
+                { title: 'System Monitor', status: 'ACTIVE', updated: '1h ago' },
+                { title: 'Cloud Sync Tool', status: 'BACKLOG', updated: '4 days ago' }
+            ];
+
+            const filteredProjects = filter === 'All' 
+                ? projects 
+                : projects.filter(p => p.status === filter.toUpperCase());
+
+            return (
+            <Layout>
+                <Header 
+                    title="My Projects" 
+                    rightElement={
+                        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg text-xs font-semibold">
+                            {['All', 'Active', 'Completed', 'Backlog'].map(f => (
+                                <button 
+                                    key={f}
+                                    onClick={() => setFilter(f)}
+                                    className={`px-3 py-1.5 rounded-md transition-colors ${filter === f ? 'bg-white dark:bg-slate-700 shadow-sm' : 'text-slate-500'}`}
+                                >
+                                    {f}
+                                </button>
+                            ))}
+                        </div>
+                    }
+                />
+                <div class="flex-1 overflow-y-auto p-8">
+                    <div class="max-w-7xl mx-auto space-y-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {filteredProjects.map((p, i) => (
+                                <div key={i} class={`group bg-white dark:bg-slate-900 border rounded-lg p-8 hover:border-primary/50 transition-all shadow-sm relative ${p.status === 'ACTIVE' ? 'border-primary/30 ring-1 ring-primary/5' : 'border-slate-200 dark:border-slate-800'}`}>
+                                    <h3 class="text-lg font-bold group-hover:text-primary transition-colors">{p.title}</h3>
+                                    <div class="mt-8 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                                        <span class={`text-[10px] font-black uppercase tracking-widest ${p.status === 'ACTIVE' ? 'text-primary' : 'text-slate-400 dark:text-slate-500'}`}>{p.status}</span>
+                                        <span class="text-[10px] text-slate-400 opacity-60 absolute bottom-4 right-8">{p.updated}</span>
+                                    </div>
+                                </div>
+                            ))}
+                            {filter === 'All' && (
+                                <div class="border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl p-6 flex flex-col items-center justify-center group cursor-pointer hover:border-primary/50 transition-colors">
+                                    <div class="size-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-primary mb-4">
+                                        <span class="material-symbols-outlined text-3xl">add</span>
+                                    </div>
+                                    <span class="text-sm font-semibold text-slate-500 group-hover:text-primary">Create New Project</span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </Layout>
+            );
+        };
+
+        const FreelancePage = () => (
+            <Layout>
+                <Header title="Freelance Work" />
+                <div class="flex-1 overflow-x-auto pb-8">
+                    <div class="flex h-full px-8 py-6 gap-2 items-start justify-center">
+                        {[
+                            { title: 'Applied', cards: [
+                                { title: 'E-commerce Backend Rewrite', desc: 'Shopify Integration, Node.js', time: '2d ago' }
+                            ]},
+                            { title: 'Pending', cards: [
+                                { title: 'AI Content Generator Tool', desc: 'OpenAI API, Next.js 14', time: 'Yesterday' }
+                            ]},
+                            { title: 'Active', cards: [
+                                { title: 'Web3 Wallet Integration', desc: 'Metamask, Wagmi, React', time: 'Ends in 2d', priority: true }
+                            ]},
+                            { title: 'Completed', cards: [] }
+                        ].map((col, idx) => (
+                            <div key={idx} class="kanban-column flex flex-col h-full mx-1">
+                                <div class="flex items-center justify-between mb-4 px-2">
+                                    <h3 class="font-bold text-[10px] uppercase tracking-[0.2em] text-slate-400">{col.title}</h3>
+                                </div>
+                                <div class="flex-1 space-y-3 overflow-y-auto px-2 flex flex-col">
+                                    {col.cards.length === 0 ? (
+                                        <div className="flex-1 flex items-center justify-center">
+                                            <p className="text-[10px] text-slate-400 uppercase tracking-widest italic">No items</p>
+                                        </div>
+                                    ) : (
+                                        col.cards.map((card, i) => (
+                                            <div key={i} class={`bg-white dark:bg-[#1a202c] p-5 rounded-lg border shadow-sm ${card.priority ? 'border-primary/50' : 'border-slate-200 dark:border-border-dark'}`}>
+                                                <h4 class="text-sm font-bold mb-1 leading-snug">{card.title}</h4>
+                                                <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">{card.desc}</p>
+                                                <span class={`text-[10px] uppercase tracking-wider ${card.priority ? 'text-blue-400 font-black' : 'text-slate-400'}`}>{card.time}</span>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </Layout>
+        );
+
+        const ApplicationsPage = () => (
+            <Layout>
+                <Header title="Job Applications" />
+                <div class="flex-1 overflow-y-auto p-8 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {[
+                            { label: 'Applied', val: '48' },
+                            { label: 'Interview', val: '12' },
+                            { label: 'Offer', val: '3' }
+                        ].map(stat => (
+                            <div key={stat.label} class="p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm">
+                                <p class="text-sm font-medium text-slate-500">{stat.label}</p>
+                                <span class="text-2xl font-bold">{stat.val}</span>
+                            </div>
+                        ))}
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">
+                                        <th class="px-6 py-4 font-semibold">Company</th>
+                                        <th class="px-6 py-4 font-semibold">Role</th>
+                                        <th class="px-6 py-4 font-semibold">Status</th>
+                                        <th class="px-6 py-4 font-semibold text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                                    {[
+                                        { comp: 'Stripe', role: 'Senior Frontend Engineer', status: 'status-interview', label: 'Interview', followUp: '2 days ago' },
+                                        { comp: 'Vercel', role: 'Product Designer', status: 'status-offer', label: 'Offer', followUp: 'Today' },
+                                        { comp: 'Google', role: 'Staff Software Engineer', status: 'status-applied', label: 'Applied', followUp: '5 days ago' },
+                                        { comp: 'Meta', role: 'Full Stack Developer', status: 'status-rejected', label: 'Rejected', followUp: '-' }
+                                    ].map((row, i) => (
+                                        <tr key={i} class={`group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors ${row.label === 'Rejected' ? 'opacity-40 grayscale-[0.5]' : ''}`}>
+                                            <td class="px-6 py-3 flex items-center gap-3"><div class="size-8 rounded bg-slate-100 dark:bg-slate-800"></div><span class="text-sm font-semibold">{row.comp}</span></td>
+                                            <td class="px-6 py-3">
+                                                <div className="text-sm">{row.role}</div>
+                                                {row.followUp !== '-' && <div className="text-[9px] text-slate-500 uppercase tracking-tighter">Last follow-up: {row.followUp}</div>}
+                                            </td>
+                                            <td class="px-6 py-3"><span class={`px-2.5 py-1 text-[10px] font-black rounded ${row.status} uppercase tracking-widest`}>{row.label}</span></td>
+                                            <td class="px-6 py-3 text-right"><span class="material-symbols-outlined text-slate-400 hover:text-primary cursor-pointer text-base">more_vert</span></td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </Layout>
+        );
+
+        const SettingsPage = () => {
+            const [confirmDelete, setConfirmDelete] = useState(true);
+
+            return (
+                <Layout>
+                    <Header title="Settings" rightElement={<div/>} />
+                    <div class="flex-1 overflow-y-auto p-8 max-w-2xl">
+                        <div class="space-y-8">
+                            <section>
+                                <h3 class="text-lg font-bold mb-4">Account</h3>
+                                <div class="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg">
+                                    <p class="text-sm font-semibold">Alex Rivera</p>
+                                    <p class="text-xs text-slate-500">Private Workspace Owner</p>
+                                </div>
+                            </section>
+                            <section>
+                                <h3 class="text-lg font-bold mb-4">Preferences</h3>
+                                <div className="flex items-center gap-3">
+                                    <input 
+                                        type="checkbox" 
+                                        id="confirmDelete" 
+                                        checked={confirmDelete} 
+                                        onChange={() => setConfirmDelete(!confirmDelete)}
+                                        className="rounded border-slate-300 text-primary focus:ring-primary size-4"
+                                    />
+                                    <label htmlFor="confirmDelete" className="text-sm font-medium">Confirm before delete</label>
+                                </div>
+                            </section>
+                            <section>
+                                <h3 class="text-lg font-bold mb-4">Export Workspace</h3>
+                                <button class="px-4 py-2 border border-slate-200 dark:border-slate-800 rounded text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Download JSON Backup</button>
+                            </section>
+                        </div>
+                    </div>
+                </Layout>
+            );
+        };
+
+        // --- Main App ---
+
+        const App = () => {
+            return (
+                <MemoryRouter>
+                    <Routes>
+                        <Route path="/" element={<DashboardPage />} />
+                        <Route path="/projects" element={<ProjectsPage />} />
+                        <Route path="/freelance" element={<FreelancePage />} />
+                        <Route path="/jobs" element={<ApplicationsPage />} />
+                        <Route path="/settings" element={<SettingsPage />} />
+                    </Routes>
+                </MemoryRouter>
+            );
+        };
+
+        const root = createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
