@@ -6,6 +6,7 @@ import Projects from './pages/Projects';
 import Freelance from './pages/Freelance';
 import Jobs from './pages/Jobs';
 import Settings from './pages/Settings';
+import Notes from './pages/Notes';
 import Login from './pages/Login';
 
 const ProtectedRoute = ({ children }) => {
@@ -25,6 +26,7 @@ function App() {
             <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
             <Route path="/freelance" element={<ProtectedRoute><Freelance /></ProtectedRoute>} />
             <Route path="/jobs" element={<ProtectedRoute><Jobs /></ProtectedRoute>} />
+            <Route path="/notes" element={<ProtectedRoute><Notes /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
         </Routes>
     );

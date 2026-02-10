@@ -12,6 +12,7 @@ const Sidebar = () => {
         { path: '/projects', label: 'Projects', icon: 'grid_view' },
         { path: '/freelance', label: 'Freelance', icon: 'view_kanban' },
         { path: '/jobs', label: 'Jobs', icon: 'work_history' },
+        { path: '/notes', label: 'Notes', icon: 'edit_note' },
         { path: '/settings', label: 'Settings', icon: 'settings' }
     ];
 
