@@ -39,4 +39,17 @@ module.exports = app => {
     app.get('/api/current_user', (req, res) => {
         res.send(req.user);
     });
+
+    app.put('/api/notes', async (req, res) => {
+        try {
+            if (!req.user) {
+                return res.status(401).send('User not authenticated');
+            }
+            req.user.notes = req.body.notes;
+            const user = await req.user.save();
+            res.send(user);
+        } catch (err) {
+            res.status(422).send(err);
+        }
+    });
 };
