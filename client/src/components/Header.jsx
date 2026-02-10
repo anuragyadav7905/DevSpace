@@ -17,19 +17,13 @@ const Header = ({ title, rightElement }) => {
                     </button>
                 )}
                 {user && (
-                    <div className="flex items-center gap-3 pl-4 border-l border-slate-700/50">
-                        <div className="text-right hidden md:block">
-                            <div className="text-sm font-medium text-white">{user.displayName}</div>
-                            <div className="text-xs text-slate-400">Developer</div>
-                        </div>
-                        <img src={user.avatar} alt={user.displayName} className="w-9 h-9 rounded-full border border-slate-600" />
-                        <button
-                            onClick={logout}
-                            className="text-xs text-red-400 hover:text-red-300 ml-2 transition-colors"
-                        >
-                            Logout
-                        </button>
-                    </div>
+                    <button
+                        onClick={logout}
+                        className="flex items-center gap-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg text-sm font-medium"
+                    >
+                        <span className="material-symbols-outlined text-lg">logout</span>
+                        <span>Logout</span>
+                    </button>
                 )}
             </div>
         </header>
