@@ -25,11 +25,14 @@ module.exports = app => {
         }
     );
 
-    app.get('/api/logout', (req, res, next) => {
+    app.get('/api/logout', (req, res) => {
         req.logout((err) => {
-            if (err) { return next(err); }
-            // Redirect to client after logout
-            res.redirect(CLIENT_URL);
+            if (err) { return res.status(500).json({ error: 'Logout failed' }); }
+            req.session.destroy((err) => {
+                if (err) { return res.status(500).json({ error: 'Session destruction failed' }); }
+                res.clearCookie('devspace.sid', { path: '/' }); // Clear session cookie
+                res.status(200).json({ success: true });
+            });
         });
     });
 

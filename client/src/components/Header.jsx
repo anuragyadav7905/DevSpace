@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 
 const Header = ({ title, rightElement }) => {
-    const { user } = useContext(AuthContext);
+    const { user, logout } = useContext(AuthContext);
 
     return (
         <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark flex items-center justify-between px-8 shrink-0">
@@ -23,7 +23,12 @@ const Header = ({ title, rightElement }) => {
                             <div className="text-xs text-slate-400">Developer</div>
                         </div>
                         <img src={user.avatar} alt={user.displayName} className="w-9 h-9 rounded-full border border-slate-600" />
-                        <a href="/api/logout" className="text-xs text-red-400 hover:text-red-300 ml-2">Logout</a>
+                        <button
+                            onClick={logout}
+                            className="text-xs text-red-400 hover:text-red-300 ml-2 transition-colors"
+                        >
+                            Logout
+                        </button>
                     </div>
                 )}
             </div>

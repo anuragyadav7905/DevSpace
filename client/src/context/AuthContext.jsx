@@ -29,8 +29,23 @@ export const AuthProvider = ({ children }) => {
         fetchUser();
     }, []);
 
+    const logout = async () => {
+        const isProduction = window.location.hostname.includes('vercel.app');
+        const backendUrl = isProduction
+            ? 'https://devspace-backend-hfu5.onrender.com'
+            : 'http://localhost:5001';
+
+        try {
+            await axios.get(`${backendUrl}/api/logout`, { withCredentials: true });
+            setUser(null);
+            window.location.href = '/login'; // Force redirect to login
+        } catch (err) {
+            console.error("Logout failed", err);
+        }
+    };
+
     return (
-        <AuthContext.Provider value={{ user, loading }}>
+        <AuthContext.Provider value={{ user, loading, logout }}>
             {children}
         </AuthContext.Provider>
     );
