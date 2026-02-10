@@ -94,7 +94,7 @@ const Dashboard = () => {
     return (
         <Layout>
             <Header title="Dashboard" rightElement={<div />} />
-            <div className="flex-1 overflow-y-auto p-8 max-w-5xl mx-auto w-full">
+            <div className="flex-1 overflow-y-auto p-8 pb-24 max-w-5xl mx-auto w-full">
                 <header className="mb-12">
                     <h2 className="text-2xl font-bold tracking-tight">Personal Workspace Overview</h2>
                     <p className="text-slate-400 dark:text-slate-600 text-sm mt-1 uppercase tracking-widest text-[10px]">Status Console • Read-only</p>
@@ -165,7 +165,7 @@ const Dashboard = () => {
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
                             placeholder="Write your thoughts, todos, ideas..."
-                            className="w-full h-40 bg-transparent resize-none outline-none text-slate-600 dark:text-slate-300 placeholder-slate-400 font-mono text-sm leading-relaxed"
+                            className="w-full h-48 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-lg p-4 resize-none outline-none focus:border-primary/50 transition-colors text-slate-600 dark:text-slate-300 placeholder-slate-400 font-mono text-sm leading-relaxed"
                             spellCheck="false"
                         />
                     </div>
