@@ -3,9 +3,8 @@ import { Layout, Code2, ArrowRight } from 'lucide-react';
 
 const Login = () => {
     const handleGoogleLogin = () => {
-        // Use environment variable for backend URL in production, or fallback to localhost
-        const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
-        window.open(`${backendUrl}/auth/google`, '_self');
+        const backendURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+        window.location.href = `${backendURL}/auth/google`;
     };
 
     return (
