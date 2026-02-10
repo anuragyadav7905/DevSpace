@@ -1,11 +1,13 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -38,7 +40,7 @@ export const AuthProvider = ({ children }) => {
         try {
             await axios.get(`${backendUrl}/api/logout`, { withCredentials: true });
             setUser(null);
-            window.location.href = '/login'; // Force redirect to login
+            navigate('/login'); // Client-side redirect
         } catch (err) {
             console.error("Logout failed", err);
         }
