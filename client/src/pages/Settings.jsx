@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import axios from 'axios';
 import Layout from '../components/Layout';
 import Header from '../components/Header';
+import { AuthContext } from '../context/AuthContext';
 
 const Settings = () => {
+    const { user } = useContext(AuthContext);
     const [confirmDelete, setConfirmDelete] = useState(true);
     const [downloading, setDownloading] = useState(false);
 
@@ -37,9 +39,18 @@ const Settings = () => {
                 <div className="space-y-8">
                     <section>
                         <h3 className="text-lg font-bold mb-4">Account</h3>
-                        <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg">
-                            <p className="text-sm font-semibold">Owner</p>
-                            <p className="text-xs text-slate-500">Solopreneur</p>
+                        <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg flex items-center gap-4">
+                            <div className="size-12 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden shrink-0">
+                                <img
+                                    className="w-full h-full object-cover"
+                                    src={user?.avatar || "https://ui-avatars.com/api/?name=User&background=random"}
+                                    alt="User profile"
+                                />
+                            </div>
+                            <div>
+                                <p className="text-sm font-semibold">{user?.displayName || "User"}</p>
+                                <p className="text-xs text-slate-500">{user?.email || "No email"}</p>
+                            </div>
                         </div>
                     </section>
                     <section>

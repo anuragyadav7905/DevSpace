@@ -1,6 +1,9 @@
 import { Link, useLocation } from 'react-router-dom';
+import { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 
 const Sidebar = () => {
+    const { user } = useContext(AuthContext);
     const location = useLocation();
     const isActive = (path) => location.pathname === path;
 
@@ -38,11 +41,15 @@ const Sidebar = () => {
             <div className="p-4 border-t border-slate-200 dark:border-slate-800 space-y-4">
                 <div className="flex items-center gap-3 px-3 py-4">
                     <div className="size-10 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
-                        <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNsSkeTCloijvUr0ZAV8S1SdaR6uKazTpwSOoWJ0D25C4o28YlbWXtGhsh8xtiS7CUPXC7XK8pf9HIrwNYEt-0mJ-SgebQoQsSkqOi3tGX1Vd3u9k9S4GDW8-rChgDTIDmko1D3ggb-c_u-uY7bPiOOe9UEBA1-ZPP7SSaclb0vvJs4BOcpSkBSs_pcMsdyK0at2oRIb07Xv9NwDczGldZcXcQetQtvwdpvEN88rn0LN6IHfSjXKtLT7YUi733eWXy9ymm3TnZDSI" alt="User profile" />
+                        <img
+                            className="w-full h-full object-cover"
+                            src={user?.avatar || "https://ui-avatars.com/api/?name=User&background=random"}
+                            alt="User profile"
+                        />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-sm font-semibold">Workspace</span>
-                        <span className="text-xs text-slate-500">Solopreneur</span>
+                        <span className="text-sm font-semibold truncate max-w-[140px]">{user?.displayName || "Loading..."}</span>
+                        <span className="text-xs text-slate-500">Workspace Owner</span>
                     </div>
                 </div>
             </div>

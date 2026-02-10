@@ -1,6 +1,11 @@
 const passport = require('passport');
 
 module.exports = app => {
+    // Define the client URL based on the environment
+    const CLIENT_URL = process.env.NODE_ENV === 'production'
+        ? process.env.CLIENT_URL
+        : 'http://localhost:3000';
+
     app.get(
         '/auth/google',
         passport.authenticate('google', {
@@ -10,20 +15,21 @@ module.exports = app => {
 
     app.get(
         '/auth/google/callback',
-        passport.authenticate('google'),
+        passport.authenticate('google', {
+            failureRedirect: '/login',
+            session: true
+        }),
         (req, res) => {
-            res.redirect(process.env.NODE_ENV === 'production'
-                ? process.env.CLIENT_URL
-                : 'http://localhost:3000/');
+            // Successful authentication, redirect to client
+            res.redirect(CLIENT_URL);
         }
     );
 
     app.get('/api/logout', (req, res, next) => {
         req.logout((err) => {
             if (err) { return next(err); }
-            res.redirect(process.env.NODE_ENV === 'production'
-                ? process.env.CLIENT_URL
-                : '/');
+            // Redirect to client after logout
+            res.redirect(CLIENT_URL);
         });
     });
 
