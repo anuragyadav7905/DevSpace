@@ -3,17 +3,12 @@ import { Layout, Code2, ArrowRight } from 'lucide-react';
 
 const Login = () => {
     const handleGoogleLogin = () => {
-        let backendUrl = import.meta.env.VITE_API_BASE_URL;
+        // Aggressively check hostname to determine environment
+        const isProduction = window.location.hostname.includes('vercel.app');
 
-        // Fallback for Vercel production if env var is missing
-        if (!backendUrl && window.location.hostname.includes('vercel.app')) {
-            backendUrl = 'https://devspace-backend-hfu5.onrender.com';
-        }
-
-        // Default to localhost for local development
-        if (!backendUrl) {
-            backendUrl = 'http://localhost:5001';
-        }
+        const backendUrl = isProduction
+            ? 'https://devspace-backend-hfu5.onrender.com'
+            : 'http://localhost:5001';
 
         window.location.href = `${backendUrl}/auth/google`;
     };
