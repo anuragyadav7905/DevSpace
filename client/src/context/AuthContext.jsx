@@ -9,8 +9,15 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const fetchUser = async () => {
+            const isProduction = window.location.hostname.includes('vercel.app');
+            const backendUrl = isProduction
+                ? 'https://devspace-backend-hfu5.onrender.com'
+                : 'http://localhost:5001';
+
             try {
-                const res = await axios.get('/api/current_user');
+                const res = await axios.get(`${backendUrl}/api/current_user`, {
+                    withCredentials: true
+                });
                 setUser(res.data);
             } catch (err) {
                 console.error("Error fetching user", err);

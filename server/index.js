@@ -11,8 +11,22 @@ require('./services/passport');
 const app = express();
 const PORT = process.env.PORT || 5001;
 
+// Trust proxy for secure cookies on platforms like Render
+app.set('trust proxy', 1);
+
 // Middleware
-app.use(cors()); // Allow frontend requests
+app.use(cors({
+  origin: (origin, callback) => {
+    const clientUrl = (process.env.CLIENT_URL || "").replace(/\/$/, "");
+    if (!origin || (origin === clientUrl) || origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
+}));
 app.use(express.json());
 
 app.use(
@@ -21,6 +35,11 @@ app.use(
     secret: process.env.COOKIE_KEY,
     resave: false,
     saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
   })
 );
 
