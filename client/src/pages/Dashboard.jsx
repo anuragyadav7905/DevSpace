@@ -14,33 +14,6 @@ const Dashboard = () => {
         jobs: { total: 0, byStatus: {} }
     });
     const [loading, setLoading] = useState(true);
-    const [notes, setNotes] = useState('');
-    const [isSaving, setIsSaving] = useState(false);
-
-    // Initialize notes from user when available
-    useEffect(() => {
-        if (user && user.notes !== undefined) {
-            setNotes(user.notes);
-        }
-    }, [user]);
-
-    // Auto-save notes
-    useEffect(() => {
-        const timeoutId = setTimeout(async () => {
-            if (user && notes !== user.notes) {
-                setIsSaving(true);
-                try {
-                    await axios.put('/api/notes', { notes });
-                } catch (err) {
-                    console.error("Failed to save notes", err);
-                } finally {
-                    setIsSaving(false);
-                }
-            }
-        }, 1000); // Debounce 1s
-
-        return () => clearTimeout(timeoutId);
-    }, [notes, user]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -152,23 +125,6 @@ const Dashboard = () => {
                         </div>
                     </div>
 
-                    {/* NOTES SECTION */}
-                    <div className="group bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark p-8 rounded-xl hover:border-primary/40 transition-all shadow-sm">
-                        <div className="flex items-center justify-between mb-4">
-                            <div>
-                                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 group-hover:text-primary transition-colors">Notes</h3>
-                                <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest">Quick personal notes</p>
-                            </div>
-                            {isSaving && <span className="text-[10px] text-primary animate-pulse uppercase tracking-widest">Saving...</span>}
-                        </div>
-                        <textarea
-                            value={notes}
-                            onChange={(e) => setNotes(e.target.value)}
-                            placeholder="Write your thoughts, todos, ideas..."
-                            className="w-full h-48 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-lg p-4 resize-none outline-none focus:border-primary/50 transition-colors text-slate-600 dark:text-slate-300 placeholder-slate-400 font-mono text-sm leading-relaxed"
-                            spellCheck="false"
-                        />
-                    </div>
                 </div>
             </div>
         </Layout>
