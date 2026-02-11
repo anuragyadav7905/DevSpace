@@ -6,15 +6,16 @@ import { AuthContext } from '../context/AuthContext';
 import { Bold, Italic, List, Code, Link, Image, Monitor, FileText, Check } from 'lucide-react';
 
 const Notes = () => {
-    const { user } = useContext(AuthContext);
+    const { user, setUser } = useContext(AuthContext);
     const [notes, setNotes] = useState('');
     const [isSaving, setIsSaving] = useState(false);
     const [wordCount, setWordCount] = useState(0);
     const textareaRef = useRef(null);
 
     // Initialize notes from user when available
+    // Only set notes from user if local notes state is empty to prevent overwriting user input
     useEffect(() => {
-        if (user && user.notes !== undefined) {
+        if (user && user.notes !== undefined && notes === '') {
             setNotes(user.notes);
         }
     }, [user]);
@@ -28,12 +29,15 @@ const Notes = () => {
     // Auto-save notes logic
     useEffect(() => {
         const timeoutId = setTimeout(async () => {
+            // Check if notes are different from what's in the user object to avoid unnecessary saves
+            // But if user.notes is stale, this check might be wrong.
+            // Better: just check if we have typed something and it's not saving.
             if (user && notes !== user.notes) {
                 setIsSaving(true);
                 try {
                     await axios.put('/api/notes', { notes });
-                    // Optimistically update the user object in context if possible, 
-                    // or just rely on the component state which is the source of truth here.
+                    // Update the global user context so if we navigate away and back, we have the fresh notes
+                    setUser(prev => ({ ...prev, notes }));
                 } catch (err) {
                     console.error("Failed to save notes", err);
                 } finally {
@@ -43,7 +47,7 @@ const Notes = () => {
         }, 1000); // Debounce 1s
 
         return () => clearTimeout(timeoutId);
-    }, [notes, user]);
+    }, [notes, user, setUser]);
 
     // Basic editor toolbar actions (insert text)
     const insertText = (before, after = '') => {
