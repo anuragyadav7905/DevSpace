@@ -2,6 +2,13 @@
 
 A personal MERN stack dashboard for managing projects, freelance work, and job applications.
 
+## Workflow
+
+![Workflow](Workflow.png)
+
+- **Direct apply** → paste job/gig into Brain Claude → synced to DevSpace via MCP
+- **URL paste** → goes to CareerOps for tracking + AI interview & GitHub prep
+
 ## Project Structure
 
 ```
